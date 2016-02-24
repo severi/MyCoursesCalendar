@@ -18,16 +18,19 @@ def main(url, output_file_name, include_exercise_sessions):
     cal_output = Calendar()
 
     for event in cal_input[0].walk('vevent'):
-        event_type = parse_event_type(event)
-        course_code = parse_course_code(event)
-        event_room = parse_event_room(event)
-        course_name = get_course_name(course_code)
+        try:
+            event_type = parse_event_type(event)
+            course_code = parse_course_code(event)
+            event_room = parse_event_room(event)
+            course_name = get_course_name(course_code)
         
-        if should_ignore_event_type(event_type, include_exercise_sessions):
-            continue
+            if should_ignore_event_type(event_type, include_exercise_sessions):
+                continue
 
-        event['summary'] = generate_event_description(course_code, event_type, event_room, course_name)
-        cal_output.add_component(event)
+            event['summary'] = generate_event_description(course_code, event_type, event_room, course_name)
+            cal_output.add_component(event)
+        except AttributeError:
+            continue
 
     with open(output_file_name, 'wb') as output_file:
         output_file.write(cal_output.to_ical())
